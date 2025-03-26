@@ -5,7 +5,8 @@ from pyspark.ml import Pipeline
 from pyspark.ml.feature import VectorAssembler, StandardScaler, StringIndexer
 from pyspark.ml.regression import RandomForestRegressor
 from pyspark.ml.tuning import ParamGridBuilder, CrossValidator
-from pyspark.ml.evaluation import RegressionEvaluator
+from pyspark.ml.evaluation import RegressionEvaluator, Evaluator
+from pyspark.sql import Row
 
 if len(sys.argv) < 4:
     print("Usage: spark-submit ml_rf_pipeline.py <parquet_folder_path> <model_output_path> <metrics_output_path>")
@@ -42,17 +43,18 @@ rf = RandomForestRegressor(featuresCol="scaled_features", labelCol="duration")
 
 pipeline = Pipeline(stages=indexers + [vector_assembler, scaler, rf])
 
-param_grid = ParamGridBuilder() \
-    .addGrid(rf.numTrees, [50, 100, 150]) \
-    .addGrid(rf.maxDepth, [5, 10, 15]) \
-    .addGrid(rf.maxBins, [16, 32]) \
-    .build()
+# param_grid = ParamGridBuilder() \
+#     .addGrid(rf.numTrees, [50, 100, 150]) \
+#     .addGrid(rf.maxDepth, [5, 10, 15]) \
+#     .addGrid(rf.maxBins, [16, 32]) \
+#     .build()
 
-evaluator = RegressionEvaluator(labelCol="duration", predictionCol="prediction", metricName="rmse")
+param_grid = ParamGridBuilder().build()
+reg_ev = RegressionEvaluator(predictionCol='prediction', labelCol='duration')
 
 crossval = CrossValidator(estimator=pipeline,
                           estimatorParamMaps=param_grid,
-                          evaluator=evaluator,
+                          evaluator=reg_ev,
                           numFolds=3)
 
 train, test = df.randomSplit([0.8, 0.2], seed=42)
@@ -60,28 +62,24 @@ cv_model = crossval.fit(train)
 
 predictions = cv_model.bestModel.transform(test)
 
-rmse = evaluator.evaluate(predictions)
-mae = RegressionEvaluator(labelCol="duration", predictionCol="prediction", metricName="mae").evaluate(predictions)
-mse = RegressionEvaluator(labelCol="duration", predictionCol="prediction", metricName="mse").evaluate(predictions)
-r2 = RegressionEvaluator(labelCol="duration", predictionCol="prediction", metricName="r2").evaluate(predictions)
+mae = reg_ev.evaluate(predictions, {reg_ev.metricName: "mae"})
+mse = reg_ev.evaluate(predictions, {reg_ev.metricName: "mse"})
+r2 = reg_ev.evaluate(predictions, {reg_ev.metricName: "r2"})
+rmse = reg_ev.evaluate(predictions, {reg_ev.metricName: "rmse"})
 
+metrics = [Row(Metric="RMSE", Value=rmse),
+        Row(Metric="MAE", Value=mae),
+        Row(Metric="MSE", Value=mse),
+        Row(Metric="R² Score", Value=r2)]
+metrics_df = spark.createDataFrame(metrics)
+metrics_df = metrics_df.coalesce(1)
+metrics_df.write.mode('overwrite').parquet(metrics_output_path)
 
 print("Random Forest Pipeline Metrics:")
 print(f"   RMSE: {rmse}")
 print(f"   MAE: {mae}")
 print(f"   MSE: {mse}")
 print(f"   R² Score: {r2}")
-
-
-with open(metrics_output_path, "w") as f:
-    f.write("Random Forest Pipeline Metrics:\n")
-    f.write(f"   RMSE: {rmse:.4f}\n")
-    f.write(f"   MAE: {mae:.4f}\n")
-    f.write(f"   MSE: {mse:.4f}\n")
-    f.write(f"   R² Score: {r2:.4f}\n")
-
-print(f"Metrics written to {metrics_output_path}")
-
 
 cv_model.bestModel.write().overwrite().save(model_output_path)
 print(f"Full pipeline saved to: {model_output_path}")
