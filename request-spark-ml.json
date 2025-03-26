@@ -1,29 +1,29 @@
 {
-    "name": "spark-ml",
-    "virtualClusterId": "fwf2si185y9f13cz69tpiuzml",
-    "executionRoleArn": "arn:aws:iam::466175767985:role/emr-eks-spark-job-execution",
-    "releaseLabel": "emr-6.9.0-latest",
-    "jobDriver": {
-        "sparkSubmitJobDriver": {
-            "entryPoint": "s3://emr-eks-spark-us-west-2/ml-randomforest.py",
-            "entryPointArguments": [
-                "--data_source", "s3://emr-eks-spark-us-west-2/cleaned-data/",
-                "--output_uri", "s3://emr-eks-spark-us-west-2/output"
-            ],
-            "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=8G --conf spark.executor.cores=2 --conf spark.driver.cores=1 --conf spark.driver.memory=8G --conf spark.kubernetes.container.image=466175767985.dkr.ecr.us-west-2.amazonaws.com/emr-numpy:latest"
-        
+  "name": "spark-ml",
+  "virtualClusterId": "fwf2si185y9f13cz69tpiuzml",
+  "executionRoleArn": "arn:aws:iam::466175767985:role/emr-eks-spark-job-execution",
+  "releaseLabel": "emr-6.9.0-latest",
+  "jobDriver": {
+    "sparkSubmitJobDriver": {
+      "entryPoint": "s3://emr-eks-spark-us-west-2/ml-randomforest.py",
+      "entryPointArguments": [
+        "--data_source",
+        "s3://emr-eks-spark-us-west-2/cleaned-data/",
+        "--output_uri",
+        "s3://emr-eks-spark-us-west-2/output"
+      ],
+      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=8G --conf spark.executor.cores=2 --conf spark.driver.cores=1 --conf spark.driver.memory=8G --conf spark.kubernetes.container.image=466175767985.dkr.ecr.us-west-2.amazonaws.com/emr-numpy:latest"
     }
-    },
-    "configurationOverrides": {
-        "monitoringConfiguration": {
-            "cloudWatchMonitoringConfiguration": {
-                "logGroupName": "/emr-eks-spark",
-                "logStreamNamePrefix": "spark-ml"
-            },
-            "s3MonitoringConfiguration": {
-                "logUri": "s3://emr-eks-spark-us-west-2/logs/"
-            }
-        }
-        }
+  },
+  "configurationOverrides": {
+    "monitoringConfiguration": {
+      "cloudWatchMonitoringConfiguration": {
+        "logGroupName": "/emr-eks-spark",
+        "logStreamNamePrefix": "spark-ml"
+      },
+      "s3MonitoringConfiguration": {
+        "logUri": "s3://emr-eks-spark-us-west-2/logs/"
+      }
     }
-
+  }
+}
