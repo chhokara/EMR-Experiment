@@ -43,13 +43,12 @@ rf = RandomForestRegressor(featuresCol="scaled_features", labelCol="duration")
 
 pipeline = Pipeline(stages=indexers + [vector_assembler, scaler, rf])
 
-# param_grid = ParamGridBuilder() \
-#     .addGrid(rf.numTrees, [50, 100, 150]) \
-#     .addGrid(rf.maxDepth, [5, 10, 15]) \
-#     .addGrid(rf.maxBins, [16, 32]) \
-#     .build()
+param_grid = ParamGridBuilder() \
+    .addGrid(rf.numTrees, [50, 100, 150]) \
+    .addGrid(rf.maxDepth, [5, 10, 15]) \
+    .addGrid(rf.maxBins, [16, 32]) \
+    .build()
 
-param_grid = ParamGridBuilder().build()
 reg_ev = RegressionEvaluator(predictionCol='prediction', labelCol='duration')
 
 crossval = CrossValidator(estimator=pipeline,
