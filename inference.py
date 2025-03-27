@@ -32,13 +32,12 @@ def process_coordinates_pandas(geo_type_series, coords_series):
             results.append(None)
     return pd.Series(results)
 
-def main(input_json_path, model_path):
+def main(input_json_path, model_path, output_path):
     spark = SparkSession.builder.appName("Predict-Duration-With-Pipeline").getOrCreate()
 
     raw_df = spark.read.option("multiline", "true").json(input_json_path)
-    events_df = raw_df.selectExpr("explode(events) as event").select("event.*")
 
-    df = events_df.dropDuplicates(["id"]) \
+    df = raw_df.dropDuplicates(["id"]) \
                   .dropna(subset=["id", "geography", "event_type"]) \
                   .withColumn("created", to_timestamp(col("created"))) \
                   .withColumn("updated", to_timestamp(col("updated"))) \
@@ -48,24 +47,22 @@ def main(input_json_path, model_path):
                   .dropna(subset=["latitude", "longitude"]) \
                   .withColumn("num_roads", size(col("roads"))) \
                   .withColumn("num_areas", size(col("areas"))) \
-                  .drop("geography", "coordinates", "roads", "areas", "headline", "description", "schedule", "+ivr_message", "url", "id")
+                  .drop("geography", "coordinates", "roads", "areas", "headline", "description", "schedule", "+ivr_message", "url", "jurisdiction_url")
 
 
     pipeline_model = PipelineModel.load(model_path)
     predictions = pipeline_model.transform(df)
 
-    results = predictions.select("jurisdiction_url", "prediction").collect()
+    results = predictions.select("id", "prediction")
 
-    with open("predictions.txt", "w") as f:
-        for row in results:
-            f.write(f"{row['jurisdiction_url']}\t{row['prediction']:.4f}\n")
+    results.write.mode('overwrite').parquet(output_path)
 
     print("Predictions written to predictions.txt")
     spark.stop()
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: spark-submit predict_duration_pipeline.py <input_json> <model_path>")
+    if len(sys.argv) != 4:
+        print("Usage: spark-submit predict_duration_pipeline.py <input_json> <model_path> <predictions_output_path>")
         sys.exit(1)
 
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
