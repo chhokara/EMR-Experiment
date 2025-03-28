@@ -1,6 +1,6 @@
 {
   "name": "spark-ml",
-  "virtualClusterId": "4kv5o1d6irbd1es3oz9z7u24g",
+  "virtualClusterId": "hkqddf703k1y1kitjv7mx6ko9",
   "executionRoleArn": "arn:aws:iam::466175767985:role/emr-eks-spark-job-execution",
   "releaseLabel": "emr-6.14.0-latest",
   "jobDriver": {
@@ -11,7 +11,7 @@
         "s3://emr-eks-spark-us-west-2/output",
         "s3://emr-eks-spark-us-west-2/metrics"
       ],
-      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=8G --conf spark.executor.cores=2 --conf spark.driver.cores=1 --conf spark.driver.memory=8G --conf spark.executorEnv.PYSPARK_PYTHON=./numpy-env/bin/python3 --conf spark.pyspark.python=./numpy-env/bin/python3 --archives s3://emr-eks-spark-us-west-2/numpy-env.zip#numpy-env"
+      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=8G --conf spark.executor.cores=2 --conf spark.driver.cores=1 --conf spark.driver.memory=8G --conf spark.kubernetes.container.image=466175767985.dkr.ecr.us-west-2.amazonaws.com/emr6.14_custom_repo --conf spark.pyspark.python=python3 --conf spark.pyspark.driver.python=python3"
     }
   },
   "configurationOverrides": {
