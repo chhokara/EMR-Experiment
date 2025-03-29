@@ -1,27 +1,27 @@
 {
-  "name": "spark-ml",
-  "virtualClusterId": "hkqddf703k1y1kitjv7mx6ko9",
-  "executionRoleArn": "arn:aws:iam::466175767985:role/emr-eks-spark-job-execution",
+  "name": "spark-756",
+  "virtualClusterId": "l94u3nmc34hu5mbmgbolzp5e0",
+  "executionRoleArn": "arn:aws:iam::466175767985:role/emr-eks-756-job-execution",
   "releaseLabel": "emr-6.14.0-latest",
   "jobDriver": {
     "sparkSubmitJobDriver": {
-      "entryPoint": "s3://emr-eks-spark-us-west-2/ml-randomforest.py",
+      "entryPoint": "s3://emr-eks-756-us-west-2/ml-randomforest.py",
       "entryPointArguments": [
-        "s3://emr-eks-spark-us-west-2/cleaned-data/",
-        "s3://emr-eks-spark-us-west-2/output",
-        "s3://emr-eks-spark-us-west-2/metrics"
+        "s3://emr-eks-756-us-west-2/cleaned-data/",
+        "s3://emr-eks-756-us-west-2/output",
+        "s3://emr-eks-756-us-west-2/metrics"
       ],
-      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=8G --conf spark.executor.cores=2 --conf spark.driver.cores=1 --conf spark.driver.memory=8G --conf spark.kubernetes.container.image=466175767985.dkr.ecr.us-west-2.amazonaws.com/emr6.14_custom_repo --conf spark.pyspark.python=python3 --conf spark.pyspark.driver.python=python3"
+      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=8G --conf spark.executor.cores=2 --conf spark.driver.cores=1 --conf spark.driver.memory=8G --conf spark.archives=s3://emr-eks-756-us-west-2/envs/environment.tar.gz#environment --conf spark.pyspark.python=/tmp/environment/bin/python3"
     }
   },
   "configurationOverrides": {
     "monitoringConfiguration": {
       "cloudWatchMonitoringConfiguration": {
-        "logGroupName": "/emr-eks-spark",
-        "logStreamNamePrefix": "spark-ml"
+        "logGroupName": "/emr-eks-756",
+        "logStreamNamePrefix": "spark-756"
       },
       "s3MonitoringConfiguration": {
-        "logUri": "s3://emr-eks-spark-us-west-2/logs/"
+        "logUri": "s3://emr-eks-756-us-west-2/logs/"
       }
     }
   }
