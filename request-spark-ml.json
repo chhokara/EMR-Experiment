@@ -11,7 +11,7 @@
         "s3://emr-eks-756-us-west-2/output",
         "s3://emr-eks-756-us-west-2/metrics"
       ],
-      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=8G --conf spark.executor.cores=2 --conf spark.driver.cores=1 --conf spark.driver.memory=8G --conf spark.archives=s3://emr-eks-756-us-west-2/envs/environment.tar.gz#environment --conf spark.pyspark.python=/tmp/environment/bin/python3"
+      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=8G --conf spark.executor.cores=2 --conf spark.driver.cores=1 --conf spark.driver.memory=8G"
     }
   },
   "configurationOverrides": {
